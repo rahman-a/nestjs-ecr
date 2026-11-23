@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tenant {
+  id           String     @id() @default(cuid(2))
+  name         String     @db.VarChar(150)
+  slug         String     @unique
+  code         String     @unique
+  logo         String?    @db.VarChar(500)
+  email        String?
+  phone        String?    @db.VarChar(20)
+  clientId     String     @unique
+  clientSecret String
+  activatedAt  DateTime?
+  branches     Branch[]
+  addresses    Address[]
+  employees    Employee[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Branch {
+  id          String     @id @default(cuid(2))
+  name        String     @db.VarChar(150)
+  slug        String
+  code        String
+  activatedAt DateTime?
+  tenantId    String
+  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  addressId   String     @unique
+  address     Address    @relation(fields: [addressId], references: [id])
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([tenantId, slug])
+  @@unique([tenantId, code])
+  @@index([tenantId])
+}
+
+model Employee {
+  id           String       @id @default(cuid(2))
+  name         String       @db.VarChar(150)
+  email        String?      @unique @db.VarChar(255)
+  phone        String?      @db.VarChar(20)
+  username     String       @db.VarChar(50)
+  passwordHash String
+  activatedAt  DateTime?
+  type         EmployeeType @default(MERCHANT)
+  branchId     String
+  branch       Branch       @relation(fields: [branchId], references: [id])
+  tenantId     String
+  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  lastLoginAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([tenantId, username])
+  @@index([branchId])
+  @@index([tenantId])
+}
+
+model Address {
+  id                    String   @id @default(cuid(2))
+  countryName           String   @db.VarChar(100)
+  countryCode           String   @db.VarChar(2)
+  governorate           String   @db.VarChar(100)
+  city                  String   @db.VarChar(100)
+  street                String   @db.VarChar(100)
+  buildingNumber        String   @db.VarChar(10)
+  postalCode            String?  @db.VarChar(20)
+  floor                 String?  @db.VarChar(10)
+  apartment             String?  @db.VarChar(10)
+  landmark              String?  @db.VarChar(255)
+  additionalInformation String?
+  tenantId              String
+  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  branch                Branch?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+enum EmployeeType {
+  ADMIN
+  PARTNER
+  MERCHANT
+}
