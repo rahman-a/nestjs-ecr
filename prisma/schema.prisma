@@ -13,45 +13,54 @@ datasource db {
 }
 
 model Tenant {
-  id           String     @id() @default(cuid(2))
-  name         String     @db.VarChar(150)
-  slug         String     @unique
-  code         String     @unique
-  logo         String?    @db.VarChar(500)
-  email        String?
-  phone        String?    @db.VarChar(20)
-  clientId     String     @unique
-  clientSecret String
-  activatedAt  DateTime?
-  branches     Branch[]
-  addresses    Address[]
-  employees    Employee[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id                     String     @id() @default(cuid(2))
+  rin                    String     @unique
+  nameAr                 String     @db.VarChar(150)
+  nameEn                 String     @db.VarChar(150)
+  code                   String     @unique
+  activityCode           String
+  logo                   String?    @db.VarChar(500)
+  logoPrinting           String?    @db.VarChar(500)
+  syndicateLicenseNumber String?    @db.VarChar(50)
+  email                  String?
+  phone                  String?    @db.VarChar(20)
+  clientId               String     @unique
+  clientSecret           String
+  activatedAt            DateTime?
+  branches               Branch[]
+  addresses              Address[]
+  employees              Employee[]
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
 }
 
 model Branch {
-  id          String     @id @default(cuid(2))
-  name        String     @db.VarChar(150)
-  slug        String
-  code        String
-  activatedAt DateTime?
-  tenantId    String
-  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  addressId   String     @unique
-  address     Address    @relation(fields: [addressId], references: [id])
-  employees   Employee[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id                 String     @id @default(cuid(2))
+  rin                String?    @unique
+  nameAr             String     @db.VarChar(150)
+  nameEn             String     @db.VarChar(150)
+  code               String
+  activatedAt        DateTime?
+  deviceSerialNumber String
+  terminalId         String
+  clientId           String?    @unique
+  clientSecret       String?
+  tenantId           String
+  tenant             Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  addressId          String     @unique
+  address            Address    @relation(fields: [addressId], references: [id])
+  employees          Employee[]
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 
-  @@unique([tenantId, slug])
   @@unique([tenantId, code])
   @@index([tenantId])
 }
 
 model Employee {
   id           String       @id @default(cuid(2))
-  name         String       @db.VarChar(150)
+  nameAr       String       @db.VarChar(150)
+  nameEn       String       @db.VarChar(150)
   email        String?      @unique @db.VarChar(255)
   phone        String?      @db.VarChar(20)
   username     String       @db.VarChar(50)

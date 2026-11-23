@@ -26,7 +26,7 @@ export class AuthController {
       {
         id: user.id,
         username: user.username,
-        tenant: user.tenantId,
+        tenant: user.tenant.id,
         type: user.type,
       },
       this.configService.get('BRANCH_JWT_SECRET'),

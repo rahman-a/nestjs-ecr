@@ -5,14 +5,15 @@ import bcrypt from 'bcrypt';
 @Injectable()
 export class AuthService {
   constructor(private readonly authRepo: AuthRepository) {}
-  async login(data: { username: string; password: string }) {
-    const user = await this.authRepo.getUserByUsername(data.username);
-    if (!user) return null;
+  async login(payload: { username: string; password: string }) {
+    const data = await this.authRepo.getUserByUsername(payload.username);
+    if (!data) return null;
     const isPasswordMatch = await bcrypt.compare(
-      data.password,
-      user.passwordHash,
+      payload.password,
+      data.passwordHash,
     );
     if (!isPasswordMatch) return null;
-    return user;
+    const {passwordHash, ...extracted} = data
+    return extracted;
   }
 }
